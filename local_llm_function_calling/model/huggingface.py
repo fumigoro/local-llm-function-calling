@@ -111,6 +111,7 @@ class HuggingfaceModel:
         self,
         model: AutoModelForCausalLM | str,
         tokenizer: AutoTokenizer | str | None = None,
+        device: torch.device = None
     ) -> None:
         """Create a huggingface model
 
@@ -129,6 +130,10 @@ class HuggingfaceModel:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model.name_or_path)
         else:
             self.tokenizer = tokenizer
+        
+        # Set the device
+        self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(self.device)
 
     def start_generation(self, prefix: PrefixType_contra) -> HuggingfaceGeneration:
         """Start a new generation sequence

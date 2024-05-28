@@ -1,6 +1,7 @@
 """A generator for the responses to a function call"""
 from __future__ import annotations
 from typing import Generic, Self, TYPE_CHECKING, TypeVar
+import torch
 
 from .constrainer import Constrainer, EnumConstraint, JsonSchemaConstraint
 from .model import Model, ModelWithNaturalLanguageResponses
@@ -52,6 +53,7 @@ class Generator(Generic[PrefixType, PromptType]):
         model: AutoModelForCausalLM | str,
         tokenizer: AutoTokenizer | str | None = None,
         prompter: TextPrompter[str, PromptType] | None = None,
+        device: torch.device | None = None,
     ) -> Generator[str, PromptType]:
         """Create a generator for the responses to a function call,
         using a Huggingface model
@@ -67,7 +69,7 @@ class Generator(Generic[PrefixType, PromptType]):
         Returns:
             The generator, using a Huggingface model
         """
-        hf_model: Model[str] = HuggingfaceModel(model, tokenizer)
+        hf_model: Model[str] = HuggingfaceModel(model, tokenizer, device)
         return cls(functions, hf_model, prompter)
 
     def _generate_allowed_in_enum(self, prefix: PrefixType, allowed: list[str]) -> str:
